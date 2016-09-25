@@ -59,13 +59,25 @@ module.exports = yeoman.generators.Base.extend({
       ));
     }
 
-    // Ask the user about what schema and onboarding module they want to implement.
-
     // TODO: We should get these lists from the cloud, and then download the selected one locally.
     //       Temporarily getting the list from a locally synced repo.
     this.schemaIdsToPaths = getSchemaIdsAndPathsFromLocalRepo('../translators');
     this.onboardingModelIdsToPaths = getSchemaIdsAndPathsFromLocalRepo('../onboarding');
 
+    // Verify that we can find generator and onboarding XML from this location.
+    function isEmptyObject(myObject) {
+      return (Object.keys(myObject).length === 0);
+    }
+
+    if (isEmptyObject(this.schemaIdsToPaths) || isEmptyObject(this.onboardingModelIdsToPaths)) {
+      var message = 'Error: no schema files were detected! ';
+      var advice = '\nHave you cloned the repos for openT2T/translators and openT2T/onboarding?' +
+                   '\nAre the \'translators\' and \'onboarding\' directories accessible from the parent directory?'
+      this.log(chalk.red(message) + advice);
+      process.exit();
+    }
+
+    // Ask the user about what schema and onboarding module they want to implement.
     var prompts = [
       {
         type: 'list',
